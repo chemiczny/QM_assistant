@@ -126,6 +126,9 @@ class Model:
         frozenAtoms = []
         frozenBonds = []
         
+        terachemRoute= ""
+        endFound = False
+        
         while line:
             if "$constraint_freeze" in line:
                 while not "$end" in line:
@@ -149,6 +152,12 @@ class Model:
                         self.scannedBonds.append(ScannedBond(dataDict))
                     line = terachemF.readline()
             
+            if line.strip() == "end":
+                endFound = True
+            
+            if not endFound:
+                if not "coordinates" in line:
+                    terachemRoute += line
             line = terachemF.readline()
         
         self.frozen = [ int(fA) - 1 for fA in frozenAtoms ]
@@ -156,6 +165,9 @@ class Model:
         for bond in frozenBonds:
             [a, b] = bond.split("_")
             self.frozenBonds.append( [ int(a)-1, int(b)-1 ]  )
+            
+        self.routeSectionTerachem.delete(1.0, "end")
+        self.routeSectionTerachem.insert("end", terachemRoute)
         
     def loadXYZ(self):
          xyz = tkFileDialog.askopenfilename(title = "Select file", filetypes = (("XYZ files","*.xyz"), ("all files","*.*") ) )
@@ -179,7 +191,11 @@ class Model:
             commentS = comment.split()
             return float( commentS[ commentS.index("Energy") + 1 ] )
         else:
-            return None
+            try:
+                energy = float( comment.split()[0] )
+                return energy
+            except:
+                return None
         
     def _loadXYZ(self, xyzSource):
         xyz = open(xyzSource, 'r')

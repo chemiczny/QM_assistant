@@ -156,7 +156,7 @@ def fetchdialog(simulation = False):
     
     self.model.slurmTextTerachem = Tkinter.Text(pageTerachem, width = 50, height = 10)
     self.model.slurmTextTerachem.grid(row = 40, column = 0 , columnspan = 5)
-    self.model.slurmTextTerachem.insert("end" , "#!/bin/bash\n## Number of nodes\n#SBATCH -N 1\n## Nubmer of tasks per node\n#SBATCH --ntasks-per-node=24\n## Number of GPU cards per node\n#SBATCH --gres=gpu:2\n## Max time of job (d-h)\n#SBATCH --time=3-0\n## Partition/queue\n#SBATCH -p plgrid-gpu\n" )
+    self.model.slurmTextTerachem.insert("end" , "#!/bin/bash\n## Number of nodes\n#SBATCH -N 1\n#SBATCH --ntasks-per-node=24\n## Number of GPU cards per node\n#SBATCH --gres=gpu:2\n## Max time of job (d-h)\n#SBATCH --time=3-0\n## Partition/queue\n#SBATCH -p plgrid-gpu\n" )
      
     refreshTerachemLists()
     #GAUSSIAN

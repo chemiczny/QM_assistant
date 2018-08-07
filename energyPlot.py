@@ -8,7 +8,7 @@ Created on Fri Aug  3 13:49:50 2018
 import sys
 from math import sqrt
 import matplotlib.pyplot as plt
-
+from mpl_toolkits.mplot3d import Axes3D
 if sys.version_info[0] < 3:
     import Tkinter
     from Tkinter import LEFT, RIGHT
