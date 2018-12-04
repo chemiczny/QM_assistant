@@ -5,6 +5,8 @@ Created on Fri Aug  3 13:51:07 2018
 
 @author: michal
 """
+from math import sqrt
+from scannedBond import ScannedBond
 
 def rewriteG16Inp2xyz( gInput, xyz ):
     gInp = open(gInput, 'r')
@@ -39,8 +41,6 @@ def rewriteG16Inp2xyz( gInput, xyz ):
             
         atomNo +=1
         line = gInp.readline().split()
-        
-
         
     xyzF.write(str(atomNo)+"\n")
     xyzF.write("\n")

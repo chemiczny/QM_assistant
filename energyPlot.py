@@ -100,6 +100,8 @@ class EnergyPlot:
         self.energies2plot = energies2plot
         self.axis = [ distances2axis ]
         
+    
+        
     def getDataPlot2D(self, energies, distances1, distances2):
         energies.reverse()
         distances1.reverse()
