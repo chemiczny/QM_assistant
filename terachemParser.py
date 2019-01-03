@@ -6,6 +6,7 @@ Created on Mon Oct 15 17:23:15 2018
 @author: michal
 """
 import sys
+from scannedBond import ScannedBond
 if sys.version_info[0] < 3:
     import Tkinter
     from Tkinter import LEFT, RIGHT

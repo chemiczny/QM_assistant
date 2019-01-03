@@ -180,7 +180,7 @@ def fetchdialog(simulation = False):
     
     self.model.routeSectionG16 =Tkinter.Text(pageGaussian, width =50, height = 10 )
     self.model.routeSectionG16.grid(row = 3, column = 0, columnspan = 5)
-    self.model.routeSectionG16.insert("end", "%Mem=8GB\n#P HF/6-31G(d,p)\n# Freq\n# Gfinput IOP(6/7=3)  Pop=full  Density  Test \n# Units(Ang,Deg)\n\nComment\n\n0 1")
+    self.model.routeSectionG16.insert("end", "%Mem=100GB\n#P HF/6-31G(d,p)\n# Freq\n# Gfinput IOP(6/7=3)  Pop=full  Density  Test \n# Units(Ang,Deg)\n\nComment\n\n0 1")
     
     self.model.slurmTextG16 = Tkinter.Text(pageGaussian, width = 50, height = 10)
     self.model.slurmTextG16.grid(row = 4, column = 0 , columnspan = 5)

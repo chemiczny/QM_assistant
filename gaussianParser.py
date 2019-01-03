@@ -98,13 +98,13 @@ class GaussianParser:
         slurmFile.write(slurmHead)
         slurmFile.write("\nmodule add plgrid/apps/gaussian/g16.A.03\n\n")
         
-        slurmFile.write("inputDir=`pwd`\n")
-        slurmFile.write("cp *  $SCRATCHDIR\n")
-        slurmFile.write("cd $SCRATCHDIR\n")
+#        slurmFile.write("inputDir=`pwd`\n")
+#        slurmFile.write("cp *  $SCRATCHDIR\n")
+#        slurmFile.write("cd $SCRATCHDIR\n")
         
         slurmFile.write("g16 "+inpNameBase+ "\n")
         slurmFile.write("python ~/g16Log2xyz.py "+inpNameBase[:-3]+"log \n")
-        slurmFile.write("cp *.log $inputDir 2>/dev/null\n")
-        slurmFile.write("cp *.xyz $inputDir 2>/dev/null\n")
+#        slurmFile.write("cp *.log $inputDir 2>/dev/null\n")
+#        slurmFile.write("cp *.xyz $inputDir 2>/dev/null\n")
         
         slurmFile.close()

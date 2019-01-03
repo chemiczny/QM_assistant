@@ -7,6 +7,7 @@ Created on Mon Oct 15 17:36:36 2018
 """
 import sys
 from scannedBond import ScannedBond
+from math import sqrt
 if sys.version_info[0] < 3:
     import Tkinter
     from Tkinter import LEFT, RIGHT

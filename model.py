@@ -31,6 +31,7 @@ class Model(Parser, GUI):
     def __init__(self):
         self.scrDir = "/home/michal/scr"
         self.resetAtributes()
+        self.exists = False
         
     def resetAtributes(self):
         self.xyz = []
@@ -42,8 +43,9 @@ class Model(Parser, GUI):
         self.sourceType = None
         self.sourceFile = None
         self.energyPlot = None
+        self.fragments = {}
         
-        self.exists = False
+#        self.exists = False
         self.objectName = "MortalKombat"
         self.frozenBondsNames = []
         self.scannedBondsNames = []
