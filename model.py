@@ -7,9 +7,9 @@ Created on Fri Aug  3 13:48:12 2018
 """
 
 import sys
-from os.path import join
+from os.path import join, expanduser, isdir
 import json
-
+from os import mkdir
 
 if sys.version_info[0] < 3:
     import Tkinter
@@ -29,7 +29,11 @@ from GUI import GUI
 
 class Model(Parser, GUI):
     def __init__(self):
-        self.scrDir = "/home/michal/scr"
+        self.scrDir = expanduser("~/.qm_assistant")
+        
+        if not isdir(self.scrDir):
+            mkdir(self.scrDir)
+        
         self.resetAtributes()
         self.exists = False
         

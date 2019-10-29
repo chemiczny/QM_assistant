@@ -19,6 +19,7 @@ def rewriteG16Inp2xyz( gInput, xyz ):
         if "#" in line:
             beginning += line
         
+    beginning += line
     while len(line.split()) != 2:
         line = gInp.readline()
         beginning += line

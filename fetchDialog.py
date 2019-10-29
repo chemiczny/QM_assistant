@@ -163,11 +163,11 @@ def fetchdialog(simulation = False):
     refreshTerachemLists()
     #GAUSSIAN
     
-    but_g16log = Tkinter.Button(pageGaussian, text = "Load g16 log", command = self.model.loadG16Log, width = 10)
-    but_g16log.grid(row = 0, column = 0)
+#    but_g16log = Tkinter.Button(pageGaussian, text = "Load g16 log", command = self.model.loadG16Log, width = 10)
+#    but_g16log.grid(row = 0, column = 0)
     
-    but_g16inp = Tkinter.Button(pageGaussian, text = "Load g16 inp", command = self.model.loadG16Inp, width = 10)
-    but_g16inp.grid(row = 0, column = 1)
+    but_g16inp = Tkinter.Button(pageGaussian, text = "Load gaussian input file", command = self.model.loadG16Inp, width = 30)
+    but_g16inp.grid(row = 0, column = 0, columnspan=3)
     
 #    but_saveLastAsG16 = Tkinter.Button(pageGaussian, text = "Save last geometry as G16 inp", width =30, command = self.model.saveLastGeomAsG16Inp)
 #    but_saveLastAsG16.grid(row = 1, column = 0 , columnspan =3 )
@@ -178,19 +178,22 @@ def fetchdialog(simulation = False):
     but_saveCurrentViewAsG16 = Tkinter.Button(pageGaussian, text = "Save current geometry as G16", width = 30, command = self.model.saveCurrentViewAsG16Inp)
     but_saveCurrentViewAsG16.grid( row = 2, column = 0, columnspan = 3 )
     
+    but_saveAllFrames = Tkinter.Button(pageGaussian, text = "Save all frames as G16", width = 30, command = self.model.saveAllFrames)
+    but_saveAllFrames.grid(row = 3, column =0, columnspan = 3)
+    
     self.model.routeSectionG16 =Tkinter.Text(pageGaussian, width =50, height = 10 )
-    self.model.routeSectionG16.grid(row = 3, column = 0, columnspan = 5)
+    self.model.routeSectionG16.grid(row = 4, column = 0, columnspan = 3)
     self.model.routeSectionG16.insert("end", "%Mem=100GB\n#P HF/6-31G(d,p)\n# Freq\n# Gfinput IOP(6/7=3)  Pop=full  Density  Test \n# Units(Ang,Deg)\n\nComment\n\n0 1")
     
     self.model.slurmTextG16 = Tkinter.Text(pageGaussian, width = 50, height = 10)
-    self.model.slurmTextG16.grid(row = 4, column = 0 , columnspan = 5)
+    self.model.slurmTextG16.grid(row = 5, column = 0 , columnspan = 3)
     self.model.slurmTextG16.insert("end" , "#!/bin/env bash\n#SBATCH --nodes=1\n#SBATCH --cpus-per-task=24\n#SBATCH --time=70:00:00\n##### Nazwa kolejki\n#SBATCH -p plgrid\n" )
               
     lab_fragments = Tkinter.Label(pageGaussian, text = "Fragments")
-    lab_fragments.grid(row = 1, column = 10)
+    lab_fragments.grid(row = 3, column = 10)
     
     self.model.fragmentsList = Tkinter.Listbox(pageGaussian, height = 20, exportselection = False)
-    self.model.fragmentsList.grid(row = 2, column = 10, rowspan = 10)
+    self.model.fragmentsList.grid(row = 4, column = 10, rowspan =2)
     
     self.model.ent_fragment = Tkinter.Entry(pageGaussian)
     self.model.ent_fragment.grid(row=6, column =10)

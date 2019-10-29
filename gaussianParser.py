@@ -19,7 +19,8 @@ else:
     from tkinter import messagebox as tkMessageBox
     import tkinter.ttk as ttk
     
-from os.path import join, basename
+from os.path import join, basename, isdir
+from os import mkdir
 from rewriteG16Inp2xyz import rewriteG16Inp2xyz
 class GaussianParser:
     def __init__(self):
@@ -58,7 +59,9 @@ class GaussianParser:
         inpName = tkFileDialog.asksaveasfilename(defaultextension = ".inp", filetypes = (("Inp files","*.inp") , ("Com files", "*.com")) )
         if inpName == () or inpName == "":
             return
+        self._writeG16(inpName)
         
+    def _writeG16(self, inpName):
         inputFile = open(inpName, 'w')
         inpNameBase = basename(inpName)
         
@@ -108,3 +111,23 @@ class GaussianParser:
 #        slurmFile.write("cp *.xyz $inputDir 2>/dev/null\n")
         
         slurmFile.close()
+        
+    def saveAllFrames(self):
+        inpName = tkFileDialog.asksaveasfilename(defaultextension = ".inp", filetypes = (("Inp files","*.inp") , ("Com files", "*.com")) )
+        if inpName == () or inpName == "":
+            return
+        
+        inpBasename = inpName.split(".")[-1]
+        framesNo = cmd.count_frames()
+        
+        for i in range( 1, framesNo+1 ):
+            cmd.frame(i)
+            newInputName = inpBasename+str(i)+".inp"
+            dirname = inpBasename+str(i)
+            fullPath = join( dirname,  newInputName )
+            
+            if not isdir(dirname):
+                mkdir(dirname)
+            self.updateModel()
+            self._writeG16(fullPath)
+        
