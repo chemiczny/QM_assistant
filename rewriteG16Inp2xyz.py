@@ -14,12 +14,11 @@ def rewriteG16Inp2xyz( gInput, xyz ):
     
     line = gInp.readline()
     beginning = ""
+    beginning += line
     while "%" in line or "#" in line:
         line = gInp.readline()
-        if "#" in line:
-            beginning += line
+        beginning += line
         
-    beginning += line
     while len(line.split()) != 2:
         line = gInp.readline()
         beginning += line
@@ -49,6 +48,7 @@ def rewriteG16Inp2xyz( gInput, xyz ):
     xyzF.close()
 
     bondsScanned = []
+    bondsFrozen = []
     line = gInp.readline()
     while line:
         lineS = line.split()
@@ -73,8 +73,14 @@ def rewriteG16Inp2xyz( gInput, xyz ):
                 dataDict["start"] = dist
 
                 bondsScanned.append( ScannedBond( dataDict ) )
+                
+        elif len(lineS) == 4 and lineS[0] == "B" and lineS[-1] == "F":
+            atomIndex1 = int(lineS[1]) -1
+            atomIndex2 = int(lineS[2]) -1
+            bondsFrozen.append( [ atomIndex1, atomIndex2 ] )
+            
         
         line = gInp.readline()
     gInp.close()
-    moleculeData = { "xyz" : xyz, "elements" : symbols, "frozen" : frozen, "bondsScanned" : bondsScanned, "routeSection" : beginning }
+    moleculeData = { "xyz" : xyz, "elements" : symbols, "frozen" : frozen, "bondsScanned" : bondsScanned, "routeSection" : beginning, "bondsFrozen" : bondsFrozen }
     return moleculeData

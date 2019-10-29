@@ -42,7 +42,7 @@ def fetchdialog(simulation = False):
     nb.add(pageMain, text = "Main")
     nb.add(pageTerachem, text = "Terachem")
     nb.add(pageGaussian, text = "Gaussian" )
-    nb.add(pageFreqs, text = "Frequencies")
+#    nb.add(pageFreqs, text = "Frequencies")
     nb.grid(row = 0, column = 0)
     
     #MAIN
@@ -183,11 +183,11 @@ def fetchdialog(simulation = False):
     
     self.model.routeSectionG16 =Tkinter.Text(pageGaussian, width =50, height = 10 )
     self.model.routeSectionG16.grid(row = 4, column = 0, columnspan = 3)
-    self.model.routeSectionG16.insert("end", "%Mem=100GB\n#P HF/6-31G(d,p)\n# Freq\n# Gfinput IOP(6/7=3)  Pop=full  Density  Test \n# Units(Ang,Deg)\n\nComment\n\n0 1")
+    self.model.routeSectionG16.insert("end", "%Mem=100GB\n#P B3LYP/6-31G(d,p)\n# Opt\n# Gfinput IOP(6/7=3)  Pop=full  Density  Test \n# Units(Ang,Deg)\n\nComment\n\n0 1")
     
     self.model.slurmTextG16 = Tkinter.Text(pageGaussian, width = 50, height = 10)
     self.model.slurmTextG16.grid(row = 5, column = 0 , columnspan = 3)
-    self.model.slurmTextG16.insert("end" , "#!/bin/env bash\n#SBATCH --nodes=1\n#SBATCH --cpus-per-task=24\n#SBATCH --time=70:00:00\n##### Nazwa kolejki\n#SBATCH -p plgrid\n" )
+    self.model.slurmTextG16.insert("end" , "#!/bin/env bash\n#SBATCH --nodes=1\n#SBATCH --cpus-per-task=24\n#SBATCH --time=72:00:00\n##### Nazwa kolejki\n#SBATCH -p plgrid\n" )
               
     lab_fragments = Tkinter.Label(pageGaussian, text = "Fragments")
     lab_fragments.grid(row = 3, column = 10)
@@ -212,19 +212,19 @@ def fetchdialog(simulation = False):
     
     #Frequencies
    
-    but_readFreqs = Tkinter.Button(pageFreqs, text = "Load Freqs from json", command = self.model.loadFreqsFromJson)
-    but_readFreqs.grid(row = 0, column = 0)
-    
-    but_showFreq = Tkinter.Button(pageFreqs, text = "Show freq", command = self.model.showFreq)
-    but_showFreq.grid(row = 0, column = 1)
-    
-    frequencyHeaders = [ "Freq", "Intens"  ]
-    self.model.tree_frequencies = ttk.Treeview(pageFreqs, columns = frequencyHeaders , show = "headings", heigh = 20 )
-    for header in frequencyHeaders:
-            self.model.tree_frequencies.heading(header, text = header)
-            self.model.tree_frequencies.column(header, width = 70)
-            
-    self.model.tree_frequencies.grid(row = 1, column = 0)
+#    but_readFreqs = Tkinter.Button(pageFreqs, text = "Load Freqs from json", command = self.model.loadFreqsFromJson)
+#    but_readFreqs.grid(row = 0, column = 0)
+#    
+#    but_showFreq = Tkinter.Button(pageFreqs, text = "Show freq", command = self.model.showFreq)
+#    but_showFreq.grid(row = 0, column = 1)
+#    
+#    frequencyHeaders = [ "Freq", "Intens"  ]
+#    self.model.tree_frequencies = ttk.Treeview(pageFreqs, columns = frequencyHeaders , show = "headings", heigh = 20 )
+#    for header in frequencyHeaders:
+#            self.model.tree_frequencies.heading(header, text = header)
+#            self.model.tree_frequencies.column(header, width = 70)
+#            
+#    self.model.tree_frequencies.grid(row = 1, column = 0)
     
     #PAGES END
     

@@ -46,6 +46,7 @@ class GaussianParser:
             self.frozen = moleculeData["frozen"]
             self.atomIds = list(range(len(self.elements)))
             self.scannedBonds = moleculeData["bondsScanned"]
+            self.frozenBonds = moleculeData["bondsFrozen"]
             
             self.sourceType = "g16Inp"
             self.printScannedBonds()
@@ -65,8 +66,9 @@ class GaussianParser:
         inputFile = open(inpName, 'w')
         inpNameBase = basename(inpName)
         
-        inputFile.write("%Chk="+inpNameBase[:-3]+"chk\n")
         routeSection = self.routeSectionG16.get("1.0", "end")
+        if not "%CHK" in routeSection.upper():
+            inputFile.write("%Chk="+inpNameBase[:-3]+"chk\n")
         
         inputFile.write(routeSection)
         lastXyz = self.xyz[-1]
