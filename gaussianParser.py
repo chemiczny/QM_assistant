@@ -46,6 +46,7 @@ class GaussianParser:
                 cmd.load(join(self.scrDir, "temp.xyz"), self.objectName)
                 cmd.show("sticks", self.objectName)
                 cmd.hide("spheres", self.objectName)
+                cmd.frame(1)
                 self.exists = True
             except:
                 print("simulation")
@@ -111,11 +112,14 @@ class GaussianParser:
             inputFile.write("\n")
             if self.scannedBonds:
                 for bond in self.scannedBonds:
-                    inputFile.write(bond.toG16(atomId2atomIndex))
+                    res = bond.toG16(atomId2atomIndex)
+                    if res:
+                        inputFile.write(res)
             if self.frozenBonds:
                 for bond in self.frozenBonds:
                     bondList = list(bond)
-                    inputFile.write("B "+str(atomId2atomIndex[bondList[0]])+" "+str(atomId2atomIndex[bondList[1]])+" F\n")
+                    if bondList[0] in atomId2atomIndex and bondList[1] in atomId2atomIndex:
+                        inputFile.write("B "+str(atomId2atomIndex[bondList[0]])+" "+str(atomId2atomIndex[bondList[1]])+" F\n")
             
                 
         inputFile.write("\n\n")
