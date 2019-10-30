@@ -41,12 +41,26 @@ class GaussianParser:
             except:
                 print("simulation")
             
-            self.xyz = [ moleculeData["xyz"] ]
-            self.elements = moleculeData["elements"]
-            self.frozen = moleculeData["frozen"]
-            self.atomIds = list(range(len(self.elements)))
+            self.frozen = set([]) 
+            stateNo = cmd.get_state()
+            model = cmd.get_model(self.objectName, stateNo)
+            index2id = {}
+            for atom in model.atom:
+                index2id[atom.index] = atom.id
+            
+            for frozenInd in moleculeData["frozen"]:
+                self.frozen.add( index2id[frozenInd] )
+            
             self.scannedBonds = moleculeData["bondsScanned"]
-            self.frozenBonds = moleculeData["bondsFrozen"]
+            
+            self.frozenBonds = set([])
+            
+            for fb in moleculeData["bondsFrozen"]:
+                frozenbond = []
+                for atomInd in fb:
+                    frozenbond.append( index2id[atomInd] )
+                    
+                self.frozenBonds.add(frozenset(frozenbond))
             
             self.sourceType = "g16Inp"
             self.printScannedBonds()
@@ -71,25 +85,30 @@ class GaussianParser:
             inputFile.write("%Chk="+inpNameBase[:-3]+"chk\n")
         
         inputFile.write(routeSection)
-        lastXyz = self.xyz[-1]
+        lastXyz = self.xyz
  
-        for i in range( len( lastXyz )):
-            xyzStr = [ str(xyz) for xyz in lastXyz[i]]
+        atomId2atomIndex = {}
+        sortedAtomsId = sorted( list( lastXyz.keys() ))
+        for atomIndex , atomId in enumerate(  sortedAtomsId, 1):
+            xyzStr = [ str(xyz) for xyz in lastXyz[atomId]]
 
-            fragmentId = self._findFragmentId(i)
-            if self.atomIds[i] in self.frozen:
-                inputFile.write(self.elements[i]+fragmentId+" -1 " + " ".join(xyzStr)+"\n")
+            fragmentId = self._findFragmentId(atomId)
+            if atomId in self.frozen:
+                inputFile.write(self.elements[atomId]+fragmentId+" -1 " + " ".join(xyzStr)+"\n")
             else:
-                inputFile.write(self.elements[i]+fragmentId+" 0 " + " ".join(xyzStr)+"\n")
+                inputFile.write(self.elements[atomId]+fragmentId+" 0 " + " ".join(xyzStr)+"\n")
+                
+            atomId2atomIndex[atomId] = atomIndex
                 
         if self.scannedBonds or self.frozenBonds:
             inputFile.write("\n")
             if self.scannedBonds:
                 for bond in self.scannedBonds:
-                    inputFile.write(bond.toG16())
+                    inputFile.write(bond.toG16(atomId2atomIndex))
             if self.frozenBonds:
                 for bond in self.frozenBonds:
-                    inputFile.write("B "+str(bond[0]+1)+" "+str(bond[1]+1)+" F\n")
+                    bondList = list(bond)
+                    inputFile.write("B "+str(atomId2atomIndex[bondList[0]])+" "+str(atomId2atomIndex[bondList[1]])+" F\n")
             
                 
         inputFile.write("\n\n")
@@ -103,14 +122,7 @@ class GaussianParser:
         slurmFile.write(slurmHead)
         slurmFile.write("\nmodule add plgrid/apps/gaussian/g16.A.03\n\n")
         
-#        slurmFile.write("inputDir=`pwd`\n")
-#        slurmFile.write("cp *  $SCRATCHDIR\n")
-#        slurmFile.write("cd $SCRATCHDIR\n")
-        
         slurmFile.write("g16 "+inpNameBase+ "\n")
-        slurmFile.write("python ~/g16Log2xyz.py "+inpNameBase[:-3]+"log \n")
-#        slurmFile.write("cp *.log $inputDir 2>/dev/null\n")
-#        slurmFile.write("cp *.xyz $inputDir 2>/dev/null\n")
         
         slurmFile.close()
         

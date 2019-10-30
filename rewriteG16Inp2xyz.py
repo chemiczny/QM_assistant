@@ -25,11 +25,11 @@ def rewriteG16Inp2xyz( gInput, xyz ):
         
     beginning = beginning[:-1]
     line = gInp.readline().split()
-    atomNo = 0
+    atomNo = 1
     coords = ""
     symbols = []
     xyz = []
-    frozen = []
+    frozen = set([])
     while len(line) >=4:
         newCoords = line[-3:]
         symbol = line[0]
@@ -37,7 +37,7 @@ def rewriteG16Inp2xyz( gInput, xyz ):
         xyz.append( [ float(c) for c in newCoords ] )
         symbols.append( symbol )
         if len(line) == 5 and int(line[1]) == -1:
-            frozen.append(atomNo)
+            frozen.add(atomNo)
             
         atomNo +=1
         line = gInp.readline().split()
@@ -48,7 +48,7 @@ def rewriteG16Inp2xyz( gInput, xyz ):
     xyzF.close()
 
     bondsScanned = []
-    bondsFrozen = []
+    bondsFrozen = set([])
     line = gInp.readline()
     while line:
         lineS = line.split()
@@ -57,8 +57,8 @@ def rewriteG16Inp2xyz( gInput, xyz ):
         
             if lineS[0] == "B":
                 dataDict = {}
-                dataDict["atom1"] = int(lineS[1])-1
-                dataDict["atom2"] = int(lineS[2])-1
+                dataDict["atom1"] = int(lineS[1])
+                dataDict["atom2"] = int(lineS[2])
                 dataDict["step" ] = float(lineS[5])
                 dataDict["points"] = int(lineS[4])
                 
@@ -75,9 +75,9 @@ def rewriteG16Inp2xyz( gInput, xyz ):
                 bondsScanned.append( ScannedBond( dataDict ) )
                 
         elif len(lineS) == 4 and lineS[0] == "B" and lineS[-1] == "F":
-            atomIndex1 = int(lineS[1]) -1
-            atomIndex2 = int(lineS[2]) -1
-            bondsFrozen.append( [ atomIndex1, atomIndex2 ] )
+            atomIndex1 = int(lineS[1]) 
+            atomIndex2 = int(lineS[2]) 
+            bondsFrozen.add( frozenset([ atomIndex1, atomIndex2 ]) )
             
         
         line = gInp.readline()

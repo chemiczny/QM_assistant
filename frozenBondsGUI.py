@@ -21,18 +21,20 @@ else:
     
 class FrozenBondsGUI():
     def __init__(self):
-        self.frozenBonds = []
+        self.frozenBonds = set([])
         self.frozenBondsNames = []
     
     def showFrozenBonds(self):
         self.updateModel()
         self.hideFrozenBonds()
+        
         for i, pair in enumerate(self.frozenBonds):
             self._showFrozenBond(pair, i)
         
     def _showFrozenBond(self, pair, i):
-        coords1 = self.xyz[-1][ self.atomIds.index(pair[0]) ]
-        coords2 = self.xyz[-1][ self.atomIds.index(pair[1]) ]
+        pairList = list(pair)
+        coords1 = self.xyz[ pairList[0] ]
+        coords2 = self.xyz[ pairList[1] ]
         
         arguments = [ 9.0 ] + coords1 + coords2 + [ 0.28  , 1 , 0, 0, 1, 0 ,0 ]
         
@@ -51,12 +53,13 @@ class FrozenBondsGUI():
             atoms = cmd.get_model("sele", stateNo)
             
             if len(atoms.atom) != 2:
+                tkMessageBox.showinfo("Cannot remove bond", "You have to select exacly 2 atoms!")
                 return
             
-            id1 = atoms.atom[0].index-1
-            id2 = atoms.atom[1].index-1
+            id1 = atoms.atom[0].id
+            id2 = atoms.atom[1].id
             
-            self.frozenBonds.append([id1, id2 ])
+            self.frozenBonds.add(frozenset([id1, id2 ]))
         except:
             print("lo kurla")
             
@@ -67,15 +70,13 @@ class FrozenBondsGUI():
             atoms = cmd.get_model("sele", stateNo)
             
             if len(atoms.atom) != 2:
+                tkMessageBox.showinfo("Cannot remove bond", "You have to select exacly 2 atoms!")
                 return
             
-            id1 = atoms.atom[0].index-1
-            id2 = atoms.atom[1].index-1
+            id1 = atoms.atom[0].id
+            id2 = atoms.atom[1].id
             
-            for bond in self.frozenBonds:
-                if id1 in bond and id2 in bond:
-                    self.frozenBonds.remove(bond)
-                    break
+            self.frozenBonds.discard( frozenset(id1, id2) )
             
         except:
             print("lo kurla")

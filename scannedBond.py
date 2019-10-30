@@ -84,9 +84,9 @@ class ScannedBond:
     def bondOk(self):
         return self._check()
     
-    def toG16(self):
-        return "B "+str(self.atom1+1)+" "+str(self.atom2+1)+" S "+str(self.points)+" "+str(self.step)+"\n"
+    def toG16(self, id2index):
+        return "B "+str(id2index[self.atom1])+" "+str(id2index[self.atom2])+" S "+str(self.points)+" "+str(self.step)+"\n"
     
-    def toTerachem(self):
-        return "bond "+str(self.start)+" "+str(self.stop)+ " "+str(self.points)+" "+str(self.atom1+1)+"_"+str(self.atom2+1)+"\n"
+    def toTerachem(self, id2index):
+        return "bond "+str(self.start)+" "+str(self.stop)+ " "+str(self.points)+" "+str(id2index[self.atom1])+"_"+str(id2index[self.atom2])+"\n"
     

@@ -21,19 +21,22 @@ else:
     
 class FrozenAtomsGUI():
     def __init__(self):
-        self.frozen = []
-    
+        self.frozen = set([])
+        self.objectName = "MortalKombat"
+        
     def showFrozen(self):
+        if not self.frozen:
+            return
+        
         frozenSelections = ""
-        for fa in self.frozen:
-            if frozenSelections != "":
-                frozenSelections += "or id "+str(fa+1)
-            else:
-                frozenSelections = "id "+str(fa+1)
+        frozenStr = [ " id " + str(fa) for fa in self.frozen ]
+        frozenSelections = " or ".join(frozenStr)
+        frozenSelections = " model "+self.objectName + " and ( " + frozenSelections + " ) "
                 
         cmd.select("frozen", frozenSelections)
         cmd.show("spheres", "frozen" )
         cmd.set ("sphere_scale", 0.5, 'frozen')
+        cmd.deselect()
         
     def hideFrozen(self):
         cmd.hide("spheres", self.objectName)
@@ -45,9 +48,8 @@ class FrozenAtomsGUI():
             stateNo = cmd.get_state()
             atoms = cmd.get_model("sele", stateNo)
 
-            for at in atoms.atom:       
-                newId = at.index-1
-                self.frozen.append(newId)
+            for at in atoms.atom:     
+                self.frozen.add(at.id)
         except:
             print("lo kurla")
             
@@ -58,9 +60,8 @@ class FrozenAtomsGUI():
             atoms = cmd.get_model("sele", stateNo)
             
             for at in atoms.atom:       
-                id2remove = at.index-1
-                if id2remove in self.frozen:
-                    self.frozen.remove(id2remove)
+                id2remove = at.id
+                self.frozen.discard(id2remove)
             
         except:
             print("lo kurla")

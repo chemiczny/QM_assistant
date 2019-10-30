@@ -38,16 +38,16 @@ class Model(Parser, GUI):
         self.exists = False
         
     def resetAtributes(self):
-        self.xyz = []
-        self.elements = []
-        self.frozen = []
-        self.frozenBonds = []
+        self.xyz = {}
+        self.elements = {}
+        self.frozen = set([])
+        self.frozenBonds = set([])
         self.scannedBonds = []
-        self.atomIds = []
         self.sourceType = None
         self.sourceFile = None
         self.energyPlot = None
         self.fragments = {}
+        self.atomId2atomIndex = {}
         
 #        self.exists = False
         self.objectName = "MortalKombat"
@@ -65,18 +65,15 @@ class Model(Parser, GUI):
         try:
             stateNo = cmd.get_state()
             atoms = cmd.get_model(self.objectName, stateNo)
-            newXYZ = []
-            newElements = []
-            newAtomsId = cmd.identify(self.objectName, 0)
-            newAtomsIdDecr = [ atId -1 for atId in newAtomsId ]
-            
+            newXYZ = {}
+            newElements = {}
+#            newAtomsIdDecr = [ atId -1 for atId in newAtomsId ]
             for at in atoms.atom:
-                newXYZ.append(at.coord)
-                newElements.append(at.name)
+                newXYZ[at.id] =  at.coord
+                newElements[at.id] = at.symbol
              
-            self.xyz = [newXYZ]
+            self.xyz = newXYZ
             self.elements = newElements
-            self.atomIds = newAtomsIdDecr
         except:
             print("simulation")
         

@@ -86,10 +86,11 @@ class ScannedBondsGUI():
             atoms = cmd.get_model("sele", stateNo)
             
             if len(atoms.atom) != 2:
+                tkMessageBox.showinfo("Cannot modify bond", "You have to select exacly 2 atoms!")
                 return
             
-            id1 = atoms.atom[0].index-1
-            id2 = atoms.atom[1].index-1
+            id1 = atoms.atom[0].id
+            id2 = atoms.atom[1].id
             coord1 = atoms.atom[0].coord
             coord2 = atoms.atom[1].coord
             
@@ -136,8 +137,8 @@ class ScannedBondsGUI():
         self.printScannedBonds()
         
     def _showScannedBond(self, pair, i):
-        coords1 = self.xyz[-1][ self.atomIds.index(pair.atom1) ]
-        coords2 = self.xyz[-1][ self.atomIds.index(pair.atom2) ]
+        coords1 = self.xyz[ pair.atom1 ]
+        coords2 = self.xyz[ pair.atom2 ]
         
         arguments = [ 9.0 ] + coords1 + coords2 + [ 0.28  , 0 , 0, 1, 0, 0 ,1 ]
         
