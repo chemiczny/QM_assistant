@@ -5,9 +5,10 @@ Created on Mon Oct 15 17:36:36 2018
 
 @author: michal
 """
-import sys
-if sys.version_info[0] < 3:
+try:
     from pymol import cmd
+except:
+    pass
     
 class FragmentsGUI():
     def __init__(self):

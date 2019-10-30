@@ -6,12 +6,11 @@ Created on Fri Aug  3 13:46:10 2018
 @author: michal
 """
 
-import sys
 from fetchDialog import fetchdialog
 
-if sys.version_info[0] < 3:
+try:
     from pymol import plugins
-else:
+except:
     pass
 
 def __init_plugin__(self=None):

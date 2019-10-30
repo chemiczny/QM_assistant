@@ -10,7 +10,6 @@ if sys.version_info[0] < 3:
     import Tkinter
     from Tkinter import LEFT, RIGHT
     import tkMessageBox, tkFileDialog
-    from pymol import cmd
     import ttk
 else:
     import tkinter as Tkinter
@@ -18,6 +17,11 @@ else:
     from tkinter import filedialog as tkFileDialog
     from tkinter import messagebox as tkMessageBox
     import tkinter.ttk as ttk
+    
+try:
+    from pymol import cmd
+except:
+    pass
     
 from os.path import join, basename, isdir
 from os import mkdir
@@ -29,19 +33,23 @@ class GaussianParser:
     def loadG16Inp(self):
         gaussianInp = tkFileDialog.askopenfilename(title = "Select file", filetypes = (("Inp files","*.inp"), ("Txt files", "*.txt") ,("Com files","*.com"), ("all files","*.*")) )
 
-        if gaussianInp != ():
+        if gaussianInp != () and gaussianInp != "":
+            self.saveActualModel()
             self.resetAtributes()
+            
+            self.objectName = basename(gaussianInp).split(".")[0]
+            
             moleculeData = rewriteG16Inp2xyz(gaussianInp, join(self.scrDir, "temp.xyz")  )
             try:
                 if self.exists:
                     cmd.delete(self.objectName)
                 cmd.load(join(self.scrDir, "temp.xyz"), self.objectName)
                 cmd.show("sticks", self.objectName)
+                cmd.hide("spheres", self.objectName)
                 self.exists = True
             except:
                 print("simulation")
             
-            self.frozen = set([]) 
             stateNo = cmd.get_state()
             model = cmd.get_model(self.objectName, stateNo)
             index2id = {}
@@ -52,8 +60,6 @@ class GaussianParser:
                 self.frozen.add( index2id[frozenInd] )
             
             self.scannedBonds = moleculeData["bondsScanned"]
-            
-            self.frozenBonds = set([])
             
             for fb in moleculeData["bondsFrozen"]:
                 frozenbond = []
@@ -66,6 +72,7 @@ class GaussianParser:
             self.printScannedBonds()
             self.routeSectionG16.delete(1.0, "end")
             self.routeSectionG16.insert("end", moleculeData["routeSection"])
+            self.saveActualModel()
             
     def loadG16Log(self):
         pass

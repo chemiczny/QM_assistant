@@ -15,7 +15,6 @@ if sys.version_info[0] < 3:
     import Tkinter
     from Tkinter import LEFT, RIGHT
     import tkMessageBox, tkFileDialog
-    from pymol import cmd
     import ttk
 else:
     import tkinter as Tkinter
@@ -24,8 +23,24 @@ else:
     from tkinter import messagebox as tkMessageBox
     import tkinter.ttk as ttk
     
+try:
+    from pymol import cmd
+except:
+    pass
+    
 from parser import Parser
 from GUI import GUI
+
+class ModelData():
+    def __init__(self, name, frozenAtoms, frozenBonds, scannedBonds, energyPlot, fragments, slurmSection, routeSection):
+        self.name = name
+        self.frozenAtoms = frozenAtoms
+        self.frozenBonds = frozenBonds
+        self.scannedBonds = scannedBonds
+        self.energyPlot = energyPlot
+        self.fragments = fragments
+        self.slurmSection = slurmSection
+        self.routeSection = routeSection
 
 class Model(Parser, GUI):
     def __init__(self):
@@ -36,6 +51,7 @@ class Model(Parser, GUI):
         
         self.resetAtributes()
         self.exists = False
+        self.savedModels = {}
         
     def resetAtributes(self):
         self.xyz = {}
@@ -54,7 +70,41 @@ class Model(Parser, GUI):
         self.frozenBondsNames = []
         self.scannedBondsNames = []
         self.modifyScannedBond = -1
+        
+    def saveActualModel(self):
+        if not self.exists:
+            return
+        
+        self.savedModels[ self.objectName ] = ModelData( self.objectName, self.frozen, self.frozenBonds,
+                        self.scannedBonds, self.energyPlot, self.fragments, self.slurmTextG16.get("1.0", "end"), self.routeSectionG16.get("1.0", "end") )
+        
+        savedKeys = self.modelsListVariable.get()
+        if self.objectName in savedKeys:
+            return
+        
+        self.modelsList.insert("end", self.objectName)
 
+    def loadModel(self):
+        modelKey = self.modelsList.get( self.modelsList.curselection() )
+        if modelKey == "" :
+            return
+        
+        self._loadModel( self.savedModels[modelKey] )
+
+    def _loadModel(self, modelData):
+        self.objectName = modelData.name
+        self.frozen = modelData.frozenAtoms
+        self.frozenBonds = modelData.frozenBonds
+        self.scannedBonds = modelData.scannedBonds
+        self.energyPlot = modelData.energyPlot
+        self.fragments = modelData.fragments
+        
+        self.printScannedBonds()
+        self.routeSectionG16.delete(1.0, "end")
+        self.routeSectionG16.insert("end", modelData.routeSection)
+        
+        self.slurmTextG16.delete("1.0", "end")
+        self.slurmTextG16.insert( "end", modelData.slurmSection)
     
     def plot(self):
         if self.energyPlot != None:

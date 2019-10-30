@@ -11,7 +11,6 @@ if sys.version_info[0] < 3:
     import Tkinter
     from Tkinter import LEFT, RIGHT
     import tkMessageBox, tkFileDialog
-    from pymol import cmd
     import ttk
 else:
     import tkinter as Tkinter
@@ -19,6 +18,11 @@ else:
     from tkinter import filedialog as tkFileDialog
     from tkinter import messagebox as tkMessageBox
     import tkinter.ttk as ttk
+    
+try:
+    from pymol import cmd
+except:
+    pass
     
 from os.path import basename
 

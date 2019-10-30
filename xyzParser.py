@@ -11,7 +11,6 @@ if sys.version_info[0] < 3:
     import Tkinter
     from Tkinter import LEFT, RIGHT
     import tkMessageBox, tkFileDialog
-    from pymol import cmd
     import ttk
 else:
     import tkinter as Tkinter
@@ -19,8 +18,14 @@ else:
     from tkinter import filedialog as tkFileDialog
     from tkinter import messagebox as tkMessageBox
     import tkinter.ttk as ttk
-from os.path import join, basename
-from math import sqrt, sin, pi
+    
+try:
+    from pymol import cmd
+except:
+    pass
+    
+from os.path import join
+from math import  sin, pi
 
 class XYZParser:
     def __init__(self):
@@ -29,7 +34,7 @@ class XYZParser:
     def loadXYZ(self):
          xyz = tkFileDialog.askopenfilename(title = "Select file", filetypes = (("XYZ files","*.xyz"), ("all files","*.*") ) )
          
-         if xyz != ():
+         if xyz != () and xyz != "":
              self._loadXYZ(xyz)
              
              try:

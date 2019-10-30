@@ -10,11 +10,15 @@ from model import Model
 from glob import glob
 if sys.version_info[0] < 3:
     import Tkinter
-    from pymol import  plugins
     import ttk
 else:
     import tkinter as Tkinter
     import tkinter.ttk as ttk
+    
+try:
+    from pymol import  plugins
+except:
+    pass
 
 
 def fetchdialog(simulation = False):
@@ -37,7 +41,7 @@ def fetchdialog(simulation = False):
     pageMain = ttk.Frame(nb)
     pageTerachem = ttk.Frame(nb)
     pageGaussian = ttk.Frame(nb)
-    pageFreqs = ttk.Frame(nb)
+#    pageFreqs = ttk.Frame(nb)
     
     nb.add(pageMain, text = "Main")
     nb.add(pageTerachem, text = "Terachem")
@@ -122,6 +126,18 @@ def fetchdialog(simulation = False):
     
     but_plot = Tkinter.Button(pageMain, text = "Plot energies" , width = 15, command = self.model.plot)
     but_plot.grid(row = 42, column = 0, columnspan = 2)
+    
+    modelsLabel = Tkinter.Label(pageMain, text = "Models")
+    modelsLabel.grid(row = 43, column = 0, columnspan = 2)
+    
+    self.model.modelsListVariable = Tkinter.Variable()
+    
+    self.model.modelsList = Tkinter.Listbox(pageMain, height =10, width = 18, listvariable= self.model.modelsListVariable)
+    self.model.modelsList.grid(row = 44, column = 0, rowspan = 10, columnspan = 2)
+    
+    butLoadModel = Tkinter.Button(pageMain, text = "Load model", command = self.model.loadModel, width = 15)
+    butLoadModel.grid(row = 54, column = 0, columnspan = 2)
+    
     #TERACHEM
     
     def refreshTerachemLists():
