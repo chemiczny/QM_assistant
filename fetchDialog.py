@@ -138,6 +138,14 @@ def fetchdialog(simulation = False):
     butLoadModel = Tkinter.Button(pageMain, text = "Load model", command = self.model.loadModel, width = 15)
     butLoadModel.grid(row = 54, column = 0, columnspan = 2)
     
+    loadedModelLabel = Tkinter.Label(pageMain,text = "Loaded model")
+    loadedModelLabel.grid(row=53, column = 2 , columnspan = 2)
+    
+    self.model.loadedModel = Tkinter.Entry(pageMain, width = 15)
+    self.model.loadedModel.grid(row=54, column = 2, columnspan = 2)
+    self.model.loadedModel.configure(state = "readonly")
+    
+    
     #TERACHEM
     
     def refreshTerachemLists():

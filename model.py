@@ -83,6 +83,11 @@ class Model(Parser, GUI):
             return
         
         self.modelsList.insert("end", self.objectName)
+        
+        self.loadedModel.configure(state = "normal")
+        self.loadedModel.delete(0,"end")
+        self.loadedModel.insert(0, self.objectName)
+        self.loadedModel.configure(state = "readonly")
 
     def loadModel(self):
         modelKey = self.modelsList.get( self.modelsList.curselection() )
@@ -90,6 +95,11 @@ class Model(Parser, GUI):
             return
         
         self._loadModel( self.savedModels[modelKey] )
+        
+        self.loadedModel.configure(state = "normal")
+        self.loadedModel.delete(0,"end")
+        self.loadedModel.insert(0, modelKey)
+        self.loadedModel.configure(state = "readonly")
 
     def _loadModel(self, modelData):
         self.objectName = modelData.name
