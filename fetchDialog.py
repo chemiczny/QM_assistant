@@ -7,6 +7,7 @@ Created on Fri Aug  3 13:47:04 2018
 """
 import sys
 from model import Model
+from jobStatusGUI import JobStatusGUI
 from glob import glob
 if sys.version_info[0] < 3:
     import Tkinter
@@ -31,22 +32,26 @@ def fetchdialog(simulation = False):
     
     self = Tkinter.Toplevel(root)
     self.title('QM assistant')
-    self.minsize(700, 500)
+    self.minsize(1335, 700)
     self.resizable(0,0)
     
     self.model = Model()
     
-    nb = ttk.Notebook(self, height = 500, width = 700)
+    nb = ttk.Notebook(self, height = 700, width = 1335)
     
     pageMain = ttk.Frame(nb)
     pageTerachem = ttk.Frame(nb)
     pageGaussian = ttk.Frame(nb)
 #    pageFreqs = ttk.Frame(nb)
+#    pageCharges = ttk.Frame(nb)
+    pageJobStatus = ttk.Frame(nb)
     
     nb.add(pageMain, text = "Main")
     nb.add(pageTerachem, text = "Terachem")
     nb.add(pageGaussian, text = "Gaussian" )
+#    nb.add(pageCharges, text = "Charges")
 #    nb.add(pageFreqs, text = "Frequencies")
+    nb.add(pageJobStatus, text = "Job monitor")
     nb.grid(row = 0, column = 0)
     
     #MAIN
@@ -249,6 +254,28 @@ def fetchdialog(simulation = False):
 #            self.model.tree_frequencies.column(header, width = 70)
 #            
 #    self.model.tree_frequencies.grid(row = 1, column = 0)
+    
+    # Charges
+    
+#    lab_chargesGroup = Tkinter.Label(pageCharges, text = "Charges group")
+#    lab_chargesGroup.grid(row =1 , column = 1)
+#    
+#    list_chargesGroup = Tkinter.Listbox(pageCharges, height = 10 )
+#    list_chargesGroup.grid(row =2, column = 1, rowspan = 10)
+#    
+#    but_fromSele = Tkinter.Button(pageCharges, text = "From sele", width = 10)
+#    but_fromSele.grid(row = 2, column = 2)
+#    
+#    but_delete = Tkinter.Button(pageCharges, text = "Delete", width = 10)
+#    but_delete.grid(row = 3, column = 2)
+#    
+#    but_save = Tkinter.Button(pageCharges, text = "Save", width = 10)
+#    but_save.grid(row = 4, column = 2)
+    
+    #job status
+    
+    guiJobStatus = JobStatusGUI(pageJobStatus)
+    
     
     #PAGES END
     

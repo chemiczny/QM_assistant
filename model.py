@@ -94,12 +94,17 @@ class Model(Parser, GUI):
         if modelKey == "" :
             return
         
+        if not modelKey in self.savedModels:
+            return
+        
         self._loadModel( self.savedModels[modelKey] )
         
         self.loadedModel.configure(state = "normal")
         self.loadedModel.delete(0,"end")
         self.loadedModel.insert(0, modelKey)
         self.loadedModel.configure(state = "readonly")
+        cmd.enable(modelKey)
+        cmd.center(modelKey)
 
     def _loadModel(self, modelData):
         self.objectName = modelData.name

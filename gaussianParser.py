@@ -46,6 +46,7 @@ class GaussianParser:
                 cmd.load(join(self.scrDir, "temp.xyz"), self.objectName)
                 cmd.show("sticks", self.objectName)
                 cmd.hide("spheres", self.objectName)
+                cmd.center(self.objectName)
                 cmd.frame(1)
                 self.exists = True
             except:
