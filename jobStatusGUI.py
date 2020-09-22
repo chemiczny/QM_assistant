@@ -34,6 +34,43 @@ else:
     from tkinter import filedialog as tkFileDialog
     from tkinter import messagebox as tkMessageBox
     
+class CommandDialog(simpledialog.Dialog):
+    
+    def __init__(self, parent, initialName, initialCommand):
+        self.initialName = initialName
+        self.initialCommand = initialCommand
+        self.results = ( initialName , initialCommand )
+        simpledialog.Dialog.__init__(self, parent)
+        
+    def buttonbox(self):
+#        super().buttonbox()
+        simpledialog.Dialog.buttonbox(self)
+        self.unbind("<Return>")
+    
+    def body(self, master):
+
+        Tkinter.Label(master, text="Name:").grid(row=0, column=0)
+        Tkinter.Label(master, text="Command:").grid(row=1, column =0 ,columnspan =2)
+
+        self.e1 = Tkinter.Entry(master, width = 50)
+        self.e2 = Tkinter.Text(master)
+
+        self.e1.grid(row=0, column=1)
+        self.e2.grid(row=2, column=0, columnspan = 2)
+        
+        self.e1.insert("end", self.initialName)
+        self.e2.insert("end", self.initialCommand)
+        
+        return self.e1 # initial focus
+    
+
+    def apply(self):
+        name = self.e1.get()
+        command = self.e2.get("1.0", "end")
+        
+        self.results = ( name, command )
+
+    
 class JobStatusGUI:
     def __init__(self, page):
         self.page = page
@@ -63,7 +100,7 @@ class JobStatusGUI:
         self.customButtons = []
         self.customButtonsData = []
         
-        self.customButtonsLocalNo = 8
+        self.customButtonsLocalNo = 11
         self.customButtonsLocal = []
         self.customButtonsLocalData = []
         
@@ -111,7 +148,7 @@ class JobStatusGUI:
         directoryViewLabel.grid( row = 20, column = 0 , columnspan = 2)
         
         self.directoryViewList = Tkinter.Listbox(self.jobMonitor, width = 40, height = 15 )
-        self.directoryViewList.grid(row = 21, column = 0, columnspan = 2, rowspan = 15)
+        self.directoryViewList.grid(row = 21, column = 0, columnspan = 2, rowspan = 8)
         
         refreshButton = Tkinter.Button(self.jobMonitor, text = "Refresh", width = 20, command = self.refreshDirectoryView )
         refreshButton.grid(row= 21, column =2)
@@ -126,9 +163,9 @@ class JobStatusGUI:
         outputLabel.grid(row = 20, column = 3, columnspan = 4)
         
         self.outputText = Tkinter.Text(self.jobMonitor, width = 80, height =  16)
-        self.outputText.grid(row = 21, column = 3, columnspan = 4, rowspan = 15)
+        self.outputText.grid(row = 21, column = 3, columnspan = 4, rowspan = 8)
         
-        rowActual = 45
+        rowActual = 29
         colActual = 0
         
         for i in range( self.customButtonsNo):
@@ -149,7 +186,7 @@ class JobStatusGUI:
         directoryViewLabel.grid( row = 20, column = 21 , columnspan = 2)
         
         for i in range( self.customButtonsLocalNo):
-            newButton = Tkinter.Button( self.jobMonitor, width = 15, command = lambda arg = i : self.customButtonCommandLocal(arg) )
+            newButton = Tkinter.Button( self.jobMonitor, width = 15, command = lambda arg = i : self.customButtonCommandLocal(arg), bg = "green" )
             newButton.grid(row = rowActual, column = colActual, columnspan =2)
             newButton.bind("<Button-3>", lambda e, arg = i:self.customButtonLocalSet(e, arg))
             self.customButtonsLocal.append(newButton)
@@ -206,22 +243,21 @@ class JobStatusGUI:
         
         
     def customButtonSet(self, event, buttonInd):
-        if "text" in self.customButtonsData[buttonInd]:
-            newButtonName = simpledialog.askstring(title = "Button name", prompt = "Select button name", initialvalue = self.customButtonsData[buttonInd]["text"])
-        else:
-            newButtonName = simpledialog.askstring(title = "Button name", prompt = "Select button name")
+        initialName = ""
+        initialCommand = ""
         
-        if not newButtonName:
-            return
+        if "text" in self.customButtonsData[buttonInd]:
+            initialName =  self.customButtonsData[buttonInd]["text"]
+        
+        if "command" in self.customButtonsData[buttonInd]:
+            initialCommand  = self.customButtonsData[buttonInd]["command"]
+        
+        commDial = CommandDialog(self.jobMonitor, initialName, initialCommand)
+        newButtonName, newButtonCommand = commDial.results
         
         self.customButtons[buttonInd].config(text = newButtonName)
         self.customButtonsData[buttonInd]["text"] = newButtonName
-        
-        if "command" in self.customButtonsData[buttonInd]:
-            newButtonCommand = simpledialog.askstring(title = "Button command", prompt = "Select button command", initialvalue = self.customButtonsData[buttonInd]["command"])
-        else:
-            newButtonCommand = simpledialog.askstring(title = "Button command", prompt = "Select button command")
-        
+    
         self.customButtonsData[buttonInd]["command"] = newButtonCommand
         
         state = self.getState()
@@ -229,21 +265,22 @@ class JobStatusGUI:
             json.dump(state, fp)
             
     def customButtonLocalSet(self, event, buttonInd):
-        if "text" in self.customButtonsLocalData[buttonInd]:
-            newButtonName = simpledialog.askstring(title = "Button name", prompt = "Select button name", initialvalue = self.customButtonsLocalData[buttonInd]["text"])
-        else:
-            newButtonName = simpledialog.askstring(title = "Button name", prompt = "Select button name")
+        initialName = ""
+        initialCommand = ""
         
-        if not newButtonName:
-            return
+        if "text" in self.customButtonsLocalData[buttonInd]:
+            initialName = self.customButtonsLocalData[buttonInd]["text"]
+ 
+        
+        if "command" in self.customButtonsLocalData[buttonInd]:
+            initialCommand = self.customButtonsLocalData[buttonInd]["command"]
+
+        
+        commDial = CommandDialog(self.jobMonitor, initialName, initialCommand)
+        newButtonName, newButtonCommand = commDial.results
         
         self.customButtonsLocal[buttonInd].config(text = newButtonName)
         self.customButtonsLocalData[buttonInd]["text"] = newButtonName
-        
-        if "command" in self.customButtonsLocalData[buttonInd]:
-            newButtonCommand = simpledialog.askstring(title = "Button command", prompt = "Select button command", initialvalue = self.customButtonsData[buttonInd]["command"])
-        else:
-            newButtonCommand = simpledialog.askstring(title = "Button command", prompt = "Select button command")
         
         self.customButtonsLocalData[buttonInd]["command"] = newButtonCommand
         
