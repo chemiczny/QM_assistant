@@ -63,6 +63,10 @@ class JobStatusGUI:
         self.customButtons = []
         self.customButtonsData = []
         
+        self.customButtonsLocalNo = 8
+        self.customButtonsLocal = []
+        self.customButtonsLocalData = []
+        
         self.actualStatus = {}
         
         self.grid()
@@ -137,6 +141,20 @@ class JobStatusGUI:
             if colActual >= self.customButtonsPerRow:
                 colActual = 0
                 rowActual += 1
+                
+        colActual = 21
+        rowActual = 21
+        
+        directoryViewLabel = Tkinter.Label(self.jobMonitor, text = "Local commands:")
+        directoryViewLabel.grid( row = 20, column = 21 , columnspan = 2)
+        
+        for i in range( self.customButtonsLocalNo):
+            newButton = Tkinter.Button( self.jobMonitor, width = 15, command = lambda arg = i : self.customButtonCommandLocal(arg) )
+            newButton.grid(row = rowActual, column = colActual, columnspan =2)
+            newButton.bind("<Button-3>", lambda e, arg = i:self.customButtonLocalSet(e, arg))
+            self.customButtonsLocal.append(newButton)
+            self.customButtonsLocalData.append({})
+            rowActual += 1
         
     def customButtonCommand(self, buttonInd):
         if not self.connected:
@@ -166,13 +184,26 @@ class JobStatusGUI:
             return
         
         fileSelection = self.directoryViewList.get(fileSelection)
-        
-        stdin, stdout, stderr = self.client.exec_command("cd "+dir2go + " ; " + command2execute + " "+ fileSelection)
+        command2execute = command2execute.replace( "$1", fileSelection )
+        stdin, stdout, stderr = self.client.exec_command("cd "+dir2go + " ; " + command2execute )
         
         output = "".join(list(stdout.readlines()))
         
         self.outputText.delete("1.0", "end")
         self.outputText.insert("end", output)
+        
+    def customButtonCommandLocal(self, buttonInd):
+        if not "command" in self.customButtonsLocalData[buttonInd]:
+            tkMessageBox.showwarning(title = "Cannot execute", message = "No command for this button")
+            return
+        
+        if not self.customButtonsLocalData[buttonInd]["command"]:
+            tkMessageBox.showwarning(title = "Cannot execute", message = "No command for this button")
+            return
+        
+        command2execute = self.customButtonsLocalData[buttonInd]["command"]
+        exec(command2execute)
+        
         
     def customButtonSet(self, event, buttonInd):
         if "text" in self.customButtonsData[buttonInd]:
@@ -192,6 +223,29 @@ class JobStatusGUI:
             newButtonCommand = simpledialog.askstring(title = "Button command", prompt = "Select button command")
         
         self.customButtonsData[buttonInd]["command"] = newButtonCommand
+        
+        state = self.getState()
+        with open(self.configFile, 'w') as fp:
+            json.dump(state, fp)
+            
+    def customButtonLocalSet(self, event, buttonInd):
+        if "text" in self.customButtonsLocalData[buttonInd]:
+            newButtonName = simpledialog.askstring(title = "Button name", prompt = "Select button name", initialvalue = self.customButtonsLocalData[buttonInd]["text"])
+        else:
+            newButtonName = simpledialog.askstring(title = "Button name", prompt = "Select button name")
+        
+        if not newButtonName:
+            return
+        
+        self.customButtonsLocal[buttonInd].config(text = newButtonName)
+        self.customButtonsLocalData[buttonInd]["text"] = newButtonName
+        
+        if "command" in self.customButtonsLocalData[buttonInd]:
+            newButtonCommand = simpledialog.askstring(title = "Button command", prompt = "Select button command", initialvalue = self.customButtonsData[buttonInd]["command"])
+        else:
+            newButtonCommand = simpledialog.askstring(title = "Button command", prompt = "Select button command")
+        
+        self.customButtonsLocalData[buttonInd]["command"] = newButtonCommand
         
         state = self.getState()
         with open(self.configFile, 'w') as fp:
@@ -487,6 +541,7 @@ class JobStatusGUI:
         state["jobManagerDir"] = self.jobManagerDirEntry.get()
         state["password"] = self.passwordEntry.get()
         state["customButtons"] = self.customButtonsData
+        state["customButtonsLocal"] = self.customButtonsLocalData
         state["downloadDir"] = self.downloadEntry.get()
         
         return state
@@ -511,6 +566,10 @@ class JobStatusGUI:
             self.customButtonsData = state["customButtons"]
             self.refreshCustomButtons()
             
+        if "customButtonsLocal" in state:
+            self.customButtonsLocalData = state["customButtonsLocal"]
+            self.refreshCustomButtonsLocal() 
+            
         if "downloadDir" in state:
             self.downloadEntry.configure(state = "normal")
             self.downloadEntry.delete(0, "end")
@@ -526,6 +585,16 @@ class JobStatusGUI:
         if lenDiff > 0:
             for i in range(lenDiff):
                 self.customButtonsData.append({})
+                
+    def refreshCustomButtonsLocal(self):
+        for i, data in enumerate(self.customButtonsLocalData):
+            if "text" in data:
+                self.customButtonsLocal[i].config(text = data["text"])
+                
+        lenDiff = len(self.customButtonsLocal) - len(self.customButtonsLocalData)
+        if lenDiff > 0:
+            for i in range(lenDiff):
+                self.customButtonsLocalData.append({})
 
     def grid(self):
         self.gridJobMonitor()
