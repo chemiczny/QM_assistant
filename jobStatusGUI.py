@@ -8,7 +8,7 @@ Created on Tue May 21 16:05:03 2019
 
 import sys
 import json
-from os.path import expanduser, join, isdir, isfile
+from os.path import expanduser, join, isdir, isfile, normpath
 from os import mkdir
 import json
 try:
@@ -100,11 +100,12 @@ class JobStatusGUI:
         self.customButtons = []
         self.customButtonsData = []
         
-        self.customButtonsLocalNo = 11
+        self.customButtonsLocalNo = 17
         self.customButtonsLocal = []
         self.customButtonsLocalData = []
         
         self.actualStatus = {}
+        self.currentDir = ""
         
         self.grid()
         
@@ -125,7 +126,7 @@ class JobStatusGUI:
         for header in self.treeHeaders:
             self.tree_data.heading(header, text = header)
             self.tree_data.column(header, width = self.treeHeaders2width[header])
-        self.tree_data.grid(row = 0, column = 0, columnspan = 20, rowspan = 15)
+        self.tree_data.grid(row = 0, column = 0, columnspan = 20, rowspan = 11)
         self.tree_data.bind("<Button-1>", self.setDir)
         
         columnNo = 21
@@ -145,27 +146,28 @@ class JobStatusGUI:
         filterButton.grid(row = 3, column = columnNo + 1)
         
         directoryViewLabel = Tkinter.Label(self.jobMonitor, text = "Directory contains:")
-        directoryViewLabel.grid( row = 20, column = 0 , columnspan = 2)
+        directoryViewLabel.grid( row = 11, column = 0 , columnspan = 2)
         
         self.directoryViewList = Tkinter.Listbox(self.jobMonitor, width = 40, height = 15 )
-        self.directoryViewList.grid(row = 21, column = 0, columnspan = 2, rowspan = 8)
+        self.directoryViewList.grid(row = 12, column = 0, columnspan = 2, rowspan = 8)
+        self.directoryViewList.bind('<Double-Button-1>', self.enterAndSetDir)
         
         refreshButton = Tkinter.Button(self.jobMonitor, text = "Refresh", width = 20, command = self.refreshDirectoryView )
-        refreshButton.grid(row= 21, column =2)
+        refreshButton.grid(row= 12, column =2)
         
         downloadButton = Tkinter.Button(self.jobMonitor, text = "Download", width = 20, command = self.downloadFile)
-        downloadButton.grid(row=22, column = 2)
+        downloadButton.grid(row=13, column = 2)
         
         toPymolButton = Tkinter.Button(self.jobMonitor, text = "to Pymol", width = 20, command = self.downloadAndLoadToPymol )
-        toPymolButton.grid(row = 23, column = 2)
+        toPymolButton.grid(row = 14, column = 2)
         
         outputLabel = Tkinter.Label(self.jobMonitor, text = "Command output")
-        outputLabel.grid(row = 20, column = 3, columnspan = 4)
+        outputLabel.grid(row = 11, column = 3, columnspan = 4)
         
         self.outputText = Tkinter.Text(self.jobMonitor, width = 80, height =  16)
-        self.outputText.grid(row = 21, column = 3, columnspan = 4, rowspan = 8)
+        self.outputText.grid(row = 12, column = 3, columnspan = 4, rowspan = 8)
         
-        rowActual = 29
+        rowActual = 20
         colActual = 0
         
         for i in range( self.customButtonsNo):
@@ -179,19 +181,35 @@ class JobStatusGUI:
                 colActual = 0
                 rowActual += 1
                 
+        rowActual += 1
+        currentDirLabel = Tkinter.Label(self.jobMonitor, text = "Current dir:")
+        currentDirLabel.grid( row = rowActual, column = 0 )
+        
+        self.currentDirEntry = Tkinter.Entry(self.jobMonitor, width = 110)
+        self.currentDirEntry.grid(row = rowActual, column = 1, columnspan = 5)
+        
+        self.currentDirEntry.configure(state = "readonly")
+                
         colActual = 21
-        rowActual = 21
+#        rowActual = 21
+        rowActual = 4
         
         directoryViewLabel = Tkinter.Label(self.jobMonitor, text = "Local commands:")
-        directoryViewLabel.grid( row = 20, column = 21 , columnspan = 2)
+        directoryViewLabel.grid( row = rowActual, column = 21 , columnspan = 2)
+        
+        rowActual += 1
         
         for i in range( self.customButtonsLocalNo):
-            newButton = Tkinter.Button( self.jobMonitor, width = 15, command = lambda arg = i : self.customButtonCommandLocal(arg), bg = "green" )
+            if rowActual == 11:
+                rowActual += 1
+            newButton = Tkinter.Button( self.jobMonitor, width = 15, height = 1 ,command = lambda arg = i : self.customButtonCommandLocal(arg), bg = "green" )
             newButton.grid(row = rowActual, column = colActual, columnspan =2)
             newButton.bind("<Button-3>", lambda e, arg = i:self.customButtonLocalSet(e, arg))
             self.customButtonsLocal.append(newButton)
             self.customButtonsLocalData.append({})
             rowActual += 1
+            
+        
         
     def customButtonCommand(self, buttonInd):
         if not self.connected:
@@ -207,12 +225,12 @@ class JobStatusGUI:
             return
         
         command2execute = self.customButtonsData[buttonInd]["command"]
-        currentSel = self.tree_data.focus()
-        if currentSel == "" :
-            tkMessageBox.showwarning(title = "Cannot execute", message = "Please select job")
+
+        if self.currentDir == "" :
+            tkMessageBox.showwarning(title = "Cannot execute", message = "Please select directory")
             return
         
-        dir2go = self.tree_data.item(currentSel)["values"][1]
+        dir2go = self.currentDir
         
         fileSelection = self.directoryViewList.curselection()
         
@@ -297,6 +315,12 @@ class JobStatusGUI:
             
             if self.connected:
                 dir2print = info[1]
+                self.currentDir = dir2print
+                
+                self.currentDirEntry.configure(state = "normal")
+                self.currentDirEntry.delete(0, "end")
+                self.currentDirEntry.insert(0, self.currentDir)
+                self.currentDirEntry.configure(state = "readonly")
                 
                 stdin, stdout, stderr = self.client.exec_command("ls -p "+dir2print)
                 filesList = list(stdout.readlines())
@@ -305,8 +329,28 @@ class JobStatusGUI:
                 for filename in filesList:
                     self.directoryViewList.insert("end", filename.strip())
                     
+                self.directoryViewList.insert("end", "../")
+                    
                 self.outputText.delete("1.0", "end")
                 
+    def enterAndSetDir(self, event):
+        dirSelection = self.directoryViewList.curselection()
+        
+        if not dirSelection:
+            tkMessageBox.showwarning(title = "Cannot enter directory!", message = "There is no directory selected")
+            return
+        
+        dirSelection = self.directoryViewList.get(dirSelection)
+        if dirSelection[-1] != "/":
+            tkMessageBox.showwarning(title = "Cannot enter directory!", message = "This is not a directory")
+            return
+        
+        self.currentDir = normpath( join(self.currentDir, dirSelection))
+        self.currentDirEntry.configure(state = "normal")
+        self.currentDirEntry.delete(0, "end")
+        self.currentDirEntry.insert(0, self.currentDir)
+        self.currentDirEntry.configure(state = "readonly")
+        self.refreshDirectoryView()
         
     def getStatus(self):
         if not self.connected:
@@ -397,24 +441,27 @@ class JobStatusGUI:
         if not self.connected:
             tkMessageBox.showwarning(title = "Cannot execute!", message = "You have to be connected with host")
             
-        currentSel = self.tree_data.focus()
-        if currentSel == "" :
-            tkMessageBox.showwarning(title = "Cannot execute", message = "Please select row")
-            return
+#        currentSel = self.tree_data.focus()
+#        if currentSel == "" :
+#            tkMessageBox.showwarning(title = "Cannot execute", message = "Please select row")
+#            return
+#        
+#        item = self.tree_data.focus()
+#        info = self.tree_data.item(item, 'values')
+#        self.currentSelectionTree = info
         
-        item = self.tree_data.focus()
-        info = self.tree_data.item(item, 'values')
-        self.currentSelectionTree = info
-        
-        if self.connected:
-            dir2print = info[1]
+#        if self.connected:
+        if self.currentDir:
+            dir2print = self.currentDir
             
             stdin, stdout, stderr = self.client.exec_command("ls -p "+dir2print)
             filesList = list(stdout.readlines())
             
             self.directoryViewList.delete(0, "end")
+            
             for filename in filesList:
                 self.directoryViewList.insert("end", filename.strip())
+            self.directoryViewList.insert("end", "../")
                 
             self.outputText.delete("1.0", "end")
     
@@ -423,12 +470,11 @@ class JobStatusGUI:
             tkMessageBox.showwarning(title = "Cannot execute", message = "You have to connect to host before command execution")
             return
         
-        currentSel = self.tree_data.focus()
-        if currentSel == "" :
-            tkMessageBox.showwarning(title = "Cannot execute", message = "Please select job")
+        if self.currentDir == "" :
+            tkMessageBox.showwarning(title = "Cannot execute", message = "Please select directory")
             return
         
-        dir2go = self.tree_data.item(currentSel)["values"][1]
+        dir2go = self.currentDir
         
         fileSelection = self.directoryViewList.curselection()
         
@@ -451,12 +497,11 @@ class JobStatusGUI:
             tkMessageBox.showwarning(title = "Cannot execute", message = "You have to connect to host before command execution")
             return
         
-        currentSel = self.tree_data.focus()
-        if currentSel == "" :
-            tkMessageBox.showwarning(title = "Cannot execute", message = "Please select job")
+        if self.currentDir == "" :
+            tkMessageBox.showwarning(title = "Cannot execute", message = "Please select directory")
             return
         
-        dir2go = self.tree_data.item(currentSel)["values"][1]
+        dir2go = self.currentDir
         
         fileSelection = self.directoryViewList.curselection()
         
